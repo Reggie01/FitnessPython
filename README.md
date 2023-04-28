@@ -1,10 +1,18 @@
-# X11 Simpe Window
+# Fitness Tracker
 
 
 ### TODO
--[]add body fat label and entry
--[]write entries to file after user hits enter
--[]create roadmap for workouts
+-[x]add body fat label and entry
+-[x]write entries to file after user hits enter
+-[]create workout
+	-[]exercise header
+	-[]timer - rest
+	-[]sets
+	-[]weight?
+	-[]reps
+-[]add program creation
+-[]add excercises
+-[]add history
 	
 ##Resources
 

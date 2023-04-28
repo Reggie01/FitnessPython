@@ -7,3 +7,13 @@ Date,Weight,BodyFat
 '2022-12-14',157.8,15.2
 hello ai
 hello ai
+hello ai
+hello ai
+hello ai
+hello ai
+125hello ai
+125hello ai
+125,hello ai
+125,15,2023-04-28
+hello ai
+2023-04-28,125,15
