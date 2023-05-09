@@ -14,6 +14,7 @@ except ImportError:
     import ttk
 
 from tkcalendar import Calendar, DateEntry
+from PIL import ImageTk, Image
 
 import time
 
@@ -44,8 +45,6 @@ def show_exercises():
 
 def show_history():
 	history_frame.tkraise()
-
-
 
 def remove_sucess_msg():
     print("I'm a cb function")
@@ -81,15 +80,78 @@ def record_bw_cb(*args):
 		#time.sleep(5)
 		root.after(500, remove_sucess_msg )
 		#success_msg_text.set( "" )
-    
+	
+class Workout_Window(ttk.Frame):
+	def __init__(self,parent):
+		ttk.Frame.__init__(self, parent, padding='3 3 12 12', width = 1080, height = 800)
+		print(f'workout window parent: {type(parent)}')
+		print(f'self type: {type(self)}')
+		print( self.tkraise )
+		ttk.Label(self, text="Workout Frame").grid( column = 0, row = 0, columnspan = 4, sticky=('N', 'W', 'E', 'S'))	
+		
+		self.squat_photo = ImageTk.PhotoImage(Image.open("../insert_you_file_here.gif"))
+		exercise_heading = ttk.Label(self, text='Photo Image')
+		exercise_heading.grid( column = 0, row = 1, columnspan = 4, sticky=('N', 'W', 'E', 'S') )
+		print(f'type(squat_photo): {type(self.squat_photo)}')
+		exercise_heading['image'] = self.squat_photo
+
+		self.set_one_results = tk.StringVar()
+		first_set_squat = ttk.Checkbutton(self, text='', variable=self.set_one_results, onvalue='True', offvalue='False', padding="3 3 12 12", command=self.completed_set)
+		first_set_squat.grid( column = 0, row = 2, columnspan = 1, sticky=('W'))
+		
+		self.results = tk.StringVar()
+		squat = ttk.Label(self, text="Squat", padding="3 3 12 12")
+		squat.grid( column=1, row = 2, columnspan = 1, sticky=('W'))
+		squat['textvariable'] = self.results
+		self.results.set("results")
+
+		squat = (12, 60, 'lb')
+		squat_timer = 60
+
+		first_squat = ttk.Label(self, padding="3 3 12 12")
+		first_squat.grid(column = 2, row = 2, sticky='W')
+		self.first_squat_contents = tk.StringVar()
+		first_squat['textvariable'] = self.first_squat_contents
+		self.first_squat_contents.set(f'{squat[0]} x {squat[1]}{squat[2]}') 
+		
+		ttk.Label(self, text="Rest", padding='3 3 12 12').grid(column = 0, row = 3, sticky=('W'))
+		rest_time_label = ttk.Label( self, padding="3 3 12 12")
+		rest_time_label.grid(column = 1, row = 3, sticky=('W', 'N', 'E', 'S'))
+		self.rest_time_label_text = tk.StringVar()
+		rest_time_label['textvariable'] = self.rest_time_label_text
+		self.mins = '00'
+		self.secs = '00'
+		
+		self.rest_time_label_text.set(f'{self.mins}:{self.secs}')
+
+		
+		ttk.Button(self, text="Start", padding="3 3 3 3", command=self.start_workout).grid(column=4, row = 4, columnspan=4, sticky=('N', 'W', 'E', 'S'))
+
+	def lift(self):
+		print('raising')
+		self.tkraise()
+
+	def start_workout(self):
+		print( 'starting workout' )
+		
+		
+
+	def completed_set(*args):
+		print(args)
+		print('completed set')
+		print( args[0].set_one_results.get() )
+		if( args[0].set_one_results.get() == 'True'):
+			print("hey, completed set")
+		
 
 root = tk.Tk()
 #top = tk.Toplevel(root)
 root.title("Fitness Tracker")
+print(type(root))
 
 # Navigation Frame
 navigation_frame = ttk.Frame( root, padding="3 3 12 12", width = 400, height=200 )
-navigation_frame.grid( column = 0, row = 5, columnspan = 4)
+navigation_frame.grid( column = 0, row = 10, columnspan = 4)
 
 ttk.Button( navigation_frame, text="Workout", command = show_workout).grid(column = 0, row = 4, sticky=tk.E)
 ttk.Button( navigation_frame, text="Program", command = show_program).grid(column = 1, row = 4, sticky=tk.E)
@@ -97,7 +159,7 @@ ttk.Button( navigation_frame, text="Exercise", command = show_exercises).grid(co
 ttk.Button( navigation_frame, text="History", command = show_history).grid(column = 3, row = 4, sticky=tk.E)
 
 
-mainframe = ttk.Frame( root, padding="3 3 12 12", width = 400, height = 400)
+mainframe = ttk.Frame( root, padding="3 3 12 12", width = 1080, height = 800)
 mainframe.grid( column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
 root.columnconfigure(0, weight = 1 )
@@ -128,35 +190,36 @@ success_msg_text = tk.StringVar()
 success_msg_lbl = ttk.Label( mainframe, textvariable = success_msg_text )
 success_msg_lbl.grid( column = 1, row = 5, sticky=tk.E)
 
-ttk.Button(mainframe, text="Workout", command=show_workout).grid(column=2, row=4, stick=tk.E)
-
 
 # Workout Frame
-workout_frame = ttk.Frame( root, padding="3 3 12 12", width=400, height=400)
-workout_frame.grid( column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
+'''
 
-ttk.Label(workout_frame, text="Squat").grid( column = 2, row = 1, sticky='W')
+'''
+
+workout_frame = Workout_Window(root)
+workout_frame.grid(column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
+print( type(workout_frame))
+print( Workout_Window.__mro__ )
 
 # Show Program Frame
-program_frame = ttk.Frame(root, padding="3 3 12 12", width=400, height= 400)
+program_frame = ttk.Frame(root, padding="3 3 12 12", width=1080, height= 800)
 program_frame.grid(column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
 ttk.Label( program_frame, text="Program Frame").grid(column = 2, row = 2, sticky=tk.E)
 
 # Show Exercises
-exercises_frame = ttk.Frame(root, padding="3 3 12 12", width=400, height=400)
+exercises_frame = ttk.Frame(root, padding="3 3 12 12", width=1080, height=800)
 exercises_frame.grid(column= 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
 ttk.Label( exercises_frame, text="Exercise Frame").grid(column = 2, row = 2, sticky=tk.E)
 
 # Show History
-history_frame = ttk.Frame(root, padding="3 3 12 12", width=400, height=400)
+history_frame = ttk.Frame(root, padding="3 3 12 12", width=1080, height=800)
 history_frame.grid( column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
 ttk.Label( history_frame, text="History Frame").grid( column = 2, row = 2, sticky=tk.E)
 
 mainframe.tkraise()
-
 
 if(DEBUG):
     print(f'cal dir is : {dir(DateEntry)}')
