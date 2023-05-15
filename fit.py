@@ -80,60 +80,99 @@ def record_bw_cb(*args):
 		#time.sleep(5)
 		root.after(500, remove_sucess_msg )
 		#success_msg_text.set( "" )
+
+def prepend_zero(_time):
+	if(_time == '00'):
+		return _time
+	elif(int(_time) < 10):
+		return f'0{_time}'
+	else:
+		return _time
 	
 class Workout_Window(ttk.Frame):
 	def __init__(self,parent):
-		ttk.Frame.__init__(self, parent, padding='3 3 12 12', width = 1080, height = 800)
-		print(f'workout window parent: {type(parent)}')
-		print(f'self type: {type(self)}')
-		print( self.tkraise )
-		ttk.Label(self, text="Workout Frame").grid( column = 0, row = 0, columnspan = 4, sticky=('N', 'W', 'E', 'S'))	
-		
-		self.squat_photo = ImageTk.PhotoImage(Image.open("../insert_you_file_here.gif"))
-		exercise_heading = ttk.Label(self, text='Photo Image')
-		exercise_heading.grid( column = 0, row = 1, columnspan = 4, sticky=('N', 'W', 'E', 'S') )
-		print(f'type(squat_photo): {type(self.squat_photo)}')
+		ttk.Frame.__init__(self, parent, padding='3 3 12 12', width = 400, height = 800)
+		DEBUG = True
+		if( DEBUG ):
+			print(f'workout window parent: {type(parent)}')
+			print(f'self type: {type(self)}')
+		self.grid(column = 0, row = 0, sticky=('N', 'W', 'E', 'S') )
+		self.heading = ttk.Label(self, padding = '3 3 3 3', anchor = 'center', text="Workout Frame")
+		self.heading['borderwidth']=1
+		self.heading['relief'] = 'sunken'
+		self.heading.grid( column=0, row = 0, columnspan = 4, sticky=('N','S','E','W'))	
+		self.columnconfigure([0,1,2,3], weight = 1)
+
+		self.squat_photo = ImageTk.PhotoImage(Image.open("insert_your_photo.gif"))
+		exercise_heading = ttk.Label(self, padding='3 3 6 6', anchor = 'center', text='Photo Image')
+		exercise_heading.grid( column = 0, row = 1, columnspan = 4, sticky=('N', 'S', 'E', 'W'))
+		if DEBUG:
+			print(f'type(squat_photo): {type(self.squat_photo)}')
 		exercise_heading['image'] = self.squat_photo
+		exercise_heading['borderwidth'] = 3
+		exercise_heading['relief'] = 'sunken'
 
 		self.set_one_results = tk.StringVar()
 		first_set_squat = ttk.Checkbutton(self, text='', variable=self.set_one_results, onvalue='True', offvalue='False', padding="3 3 12 12", command=self.completed_set)
-		first_set_squat.grid( column = 0, row = 2, columnspan = 1, sticky=('W'))
+		first_set_squat.grid( column = 0, row = 2, sticky=('W'))
 		
 		self.results = tk.StringVar()
-		squat = ttk.Label(self, text="Squat", padding="3 3 12 12")
-		squat.grid( column=1, row = 2, columnspan = 1, sticky=('W'))
+		squat = ttk.Label(self, text="", padding="3 3 6 6")
+		squat.grid( column=1, row = 2, sticky=('W'))
 		squat['textvariable'] = self.results
 		self.results.set("results")
 
 		squat = (12, 60, 'lb')
-		squat_timer = 60
+		self.rest_timer = 60
 
-		first_squat = ttk.Label(self, padding="3 3 12 12")
+		first_squat = ttk.Label(self, padding="3 3 6 6")
 		first_squat.grid(column = 2, row = 2, sticky='W')
 		self.first_squat_contents = tk.StringVar()
 		first_squat['textvariable'] = self.first_squat_contents
 		self.first_squat_contents.set(f'{squat[0]} x {squat[1]}{squat[2]}') 
 		
-		ttk.Label(self, text="Rest", padding='3 3 12 12').grid(column = 0, row = 3, sticky=('W'))
-		rest_time_label = ttk.Label( self, padding="3 3 12 12")
-		rest_time_label.grid(column = 1, row = 3, sticky=('W', 'N', 'E', 'S'))
+		ttk.Label(self, text="Rest", padding='3 3 6 6').grid(column = 0, row = 3, sticky=('W'))
+		rest_time_label = ttk.Label( self, padding="3 3 6 6")
+		rest_time_label.grid(column = 1, row = 3, sticky=('W'))
 		self.rest_time_label_text = tk.StringVar()
 		rest_time_label['textvariable'] = self.rest_time_label_text
-		self.mins = '00'
-		self.secs = '00'
+
+		mins, secs = divmod(self.rest_timer, 60) 
+		self.mins = prepend_zero( str(mins) )
+		self.secs = prepend_zero( str(secs) )
 		
 		self.rest_time_label_text.set(f'{self.mins}:{self.secs}')
 
+		self.progressbar_one = ttk.Progressbar(self, orient = tk.HORIZONTAL, length = 200, mode = 'determinate')
+		self.progressbar_one.grid( column = 0, row = 4, columnspan = 2, sticky=('W'))
+		self.progressbar_one['maximum'] = mins * 60 * 1.0 + secs * 1.0
+		self.progressbar_one['value'] = 0
 		
-		ttk.Button(self, text="Start", padding="3 3 3 3", command=self.start_workout).grid(column=4, row = 4, columnspan=4, sticky=('N', 'W', 'E', 'S'))
+		if DEBUG:
+			print(f'self grid size: {self.grid_size()}')
+		ttk.Button(self, text="Start", padding="3 3 3 3", command=self.start_workout).grid(column=3, row = 6, sticky=('N', 'W', 'E', 'S'))
 
 	def lift(self):
 		print('raising')
 		self.tkraise()
 
 	def start_workout(self):
-		print( 'starting workout' )
-		
+		if DEBUG:		
+			print( 'starting workout' ) 
+		if( self.rest_timer == 0):
+			if DEBUG:			
+				print(f'rest timer is: {self.rest_timer}')
+			return
+		else:
+			if DEBUG:
+				print(f'rest timer: {self.rest_timer}')
+			self.progressbar_one['value'] = self.progressbar_one['value'] + 1
+			self.rest_timer = self.rest_timer - 1
+			mins, secs = divmod(self.rest_timer, 60)
+			self.secs = prepend_zero( str(secs) )
+			self.mins = prepend_zero( str(mins) )
+			self.rest_time_label_text.set(f'{self.mins}:{self.secs}')
+			root.after(1000, self.start_workout)
 		
 
 	def completed_set(*args):
@@ -145,9 +184,10 @@ class Workout_Window(ttk.Frame):
 		
 
 root = tk.Tk()
-#top = tk.Toplevel(root)
 root.title("Fitness Tracker")
-print(type(root))
+root.geometry("400x600")
+root.columnconfigure(0, weight = 1 )
+root.rowconfigure(0, weight = 1)
 
 # Navigation Frame
 navigation_frame = ttk.Frame( root, padding="3 3 12 12", width = 400, height=200 )
@@ -159,11 +199,10 @@ ttk.Button( navigation_frame, text="Exercise", command = show_exercises).grid(co
 ttk.Button( navigation_frame, text="History", command = show_history).grid(column = 3, row = 4, sticky=tk.E)
 
 
-mainframe = ttk.Frame( root, padding="3 3 12 12", width = 1080, height = 800)
+mainframe = ttk.Frame( root, padding="3 3 12 12", width = 400, height = 800)
 mainframe.grid( column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
-root.columnconfigure(0, weight = 1 )
-root.rowconfigure(0, weight = 1)
+
 
 ttk.Label( mainframe, text="Body Weight").grid(column=1,row=1, sticky='W')
 
@@ -192,29 +231,27 @@ success_msg_lbl.grid( column = 1, row = 5, sticky=tk.E)
 
 
 # Workout Frame
-'''
-
-'''
 
 workout_frame = Workout_Window(root)
-workout_frame.grid(column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
-print( type(workout_frame))
-print( Workout_Window.__mro__ )
+workout_frame['borderwidth'] = 3
+workout_frame['relief'] = 'sunken'
+#print( type(workout_frame))
+#print( Workout_Window.__mro__ )
 
 # Show Program Frame
-program_frame = ttk.Frame(root, padding="3 3 12 12", width=1080, height= 800)
+program_frame = ttk.Frame(root, padding="3 3 12 12", width=400, height= 800)
 program_frame.grid(column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
 ttk.Label( program_frame, text="Program Frame").grid(column = 2, row = 2, sticky=tk.E)
 
 # Show Exercises
-exercises_frame = ttk.Frame(root, padding="3 3 12 12", width=1080, height=800)
+exercises_frame = ttk.Frame(root, padding="3 3 12 12", width=400, height=800)
 exercises_frame.grid(column= 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
 ttk.Label( exercises_frame, text="Exercise Frame").grid(column = 2, row = 2, sticky=tk.E)
 
 # Show History
-history_frame = ttk.Frame(root, padding="3 3 12 12", width=1080, height=800)
+history_frame = ttk.Frame(root, padding="3 3 12 12", width=400, height=800)
 history_frame.grid( column = 0, row = 0, sticky=('N', 'W', 'E', 'S'))
 
 ttk.Label( history_frame, text="History Frame").grid( column = 2, row = 2, sticky=tk.E)
